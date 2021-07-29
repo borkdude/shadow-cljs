@@ -433,7 +433,8 @@
             (conj simplified-externs)
             (cond->
               (seq module-externs)
-              (conj (SourceFile/fromCode "externs.modules.js" module-externs))
+              (conj (SourceFile/fromCode "externs.modules.js" (doto module-externs
+                                                                (prn))))
 
               generate?
               (conj (generate-externs state))))]

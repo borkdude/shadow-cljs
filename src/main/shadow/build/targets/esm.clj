@@ -96,20 +96,20 @@
                   depends-on)
 
                 (util/reduce-kv->
-                  (fn [state export-name export-sym]
-                    (let [bridge-name (str "ex_" (cljs-comp/munge (name module-id)) "_" (name export-name))]
-
-                      (-> state
-                          ;; when advanced sees export ... it just remove it
-                          ;; so we must keep that out of the :advanced compiled code
-                          ;; by bridging through a local let which is declared in externs
-                          ;; so closure doesn't remove it. the :advanced part then just assigns it
-                          (update :module-externs conj bridge-name)
-                          (update :prepend str "let " bridge-name ";\n")
-                          (update :append-js str "\n" bridge-name " = " (cljs-comp/munge export-sym) ";")
-                          (update :append str "\nexport { " bridge-name " as " (name export-name) " };")
-                          )))
-                  exports)
+                 (fn [state export-name export-sym]
+                   (let [bridge-name (str/replace (cljs-comp/munge (name module-id)) #"\." (str/re-quote-replacement "$"))]
+                     (prn :module-id bridge-name)
+                     (-> state
+                         ;; when advanced sees export ... it just remove it
+                         ;; so we must keep that out of the :advanced compiled code
+                         ;; by bridging through a local let which is declared in externs
+                         ;; so closure doesn't remove it. the :advanced part then just assigns it
+                         (update :module-externs conj bridge-name)
+                         (update :prepend str "let " bridge-name ";\n")
+                         (update :append-js str "\n" bridge-name " = " (cljs-comp/munge export-sym) ";")
+                         (update :append str "\nexport { " bridge-name " as " (name export-name) " };")
+                         )))
+                 exports)
                 (update :append str "\nexport { $APP, shadow$provide, $jscomp };\n")
                 )))
         modules
